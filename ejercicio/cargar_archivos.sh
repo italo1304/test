@@ -1,4 +1,4 @@
-#! /usr/bin/bash
+#! /bin/bash
 hadoop fs -mkdir -p ejercicio/fecha
 hadoop fs -mkdir -p ejercicio/paises
 hadoop fs -mkdir -p ejercicio/retrasos
