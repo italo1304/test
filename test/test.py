@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     movieNames = loadMovieNames()
 
-    # lines = spark.sparkContext.textFile("hdfs://localhost:8020/user/training/test/u.data")
+    # lines = spark.sparkContext.textFile("hdfs://localhost:9000/user/vagrant/u.data")
     lines = spark.sparkContext.textFile("u.data")
 
     movies = lines.map(parseInput)
