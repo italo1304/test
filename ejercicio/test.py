@@ -55,4 +55,16 @@ print(df_top_dia_retrasos.show())
 print("Top dia menos retrasos")
 print(df_top_dia_m_retrasos.show())
 
+df_vuelos_retraso = df_vuelos.join(df_retrasos, df_vuelos["vuelo"] == df_retrasos["vuelo_id"], 'inner')
+df_vuelos_retraso = df_vuelos_retraso.select("vuelo", "origen", "destino","dias_retraso")
+
+df_vuelos_retraso = df_vuelos_retraso.join(df_pais, df_pais["cod_pais"] == df_vuelos_retraso["origen"], 'inner')
+df_vuelos_retraso = df_vuelos_retraso.select("vuelo", f.col("pais").alias(origen), "destino","dias_retraso")
+
+df_vuelos_retraso = df_vuelos_retraso.join(df_pais, df_pais["cod_pais"] == df_vuelos_retraso["destino"], 'inner')
+df_vuelos_retraso = df_vuelos_retraso.select("vuelo", "origen", f.col("pais").alias("destino"),"dias_retraso")
+
+print("Retraso Vuelos")
+print(df_vuelos_retraso.show())
+
 #df_top_dia_retrasos.write.mode("overwrite").saveAsTable("top_dia_retrasos")
