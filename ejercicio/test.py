@@ -13,6 +13,14 @@ df_vuelos = spark.table("vuelos").na.drop()
 df_salidas = (df_vuelos.groupBy('origen').count()).sort(f.col("count").desc()).limit(1)
 df_llegadas = (df_vuelos.groupBy('destino').count()).sort(f.col("count").desc()).limit(1)
 
+df_pais = spark.table("paises").na.drop()
+
+df_salidas = df_salidas.join(df_pais, df_pais["cod_pais"] == df_salidas["origen"], 'inner')
+df_salidas = df_salidas.select("pais", f.col("count").alias("top_salidas"))
+
+df_llegadas = df_llegadas.join(df_pais, df_pais["cod_pais"] == df_llegadas["destino"], 'inner')
+df_llegadas = df_llegadas.select("pais", f.col("count").alias("top_destino"))
+
 print("País top salida vuelos")
 print(df_salidas.show())
 print("País top llegada vuelos")
@@ -38,5 +46,13 @@ df_join = df_join.select("vuelo", "dia","dias_retraso")
 df_top_dia_retrasos = (df_join.groupBy('dia').sum('dias_retraso')) \
     .sort(f.col("sum(dias_retraso)").desc()).limit(1)
 
+df_top_dia_m_retrasos = (df_join.groupBy('dia').sum('dias_retraso')) \
+    .sort(f.col("sum(dias_retraso)")).limit(1)
+
 print("Top dia retrasos")
 print(df_top_dia_retrasos.show())
+
+print("Top dia menos retrasos")
+print(df_top_dia_m_retrasos.show())
+
+#df_top_dia_retrasos.write.mode("overwrite").saveAsTable("top_dia_retrasos")

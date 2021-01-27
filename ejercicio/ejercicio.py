@@ -50,3 +50,14 @@ print(df_load.show())
 #spark.sql("DROP TABLE vuelo")
 
 #print(spark.sql("SHOW TABLES").show())
+
+#####
+# spark.conf.set("spark.sql.crossJoin.enabled", "true")
+df_mas_vuelos = df_fecha.sort(f.col("count").desc()).limit(1)
+df_menos_vuelos = df_fecha.sort(f.col("count")).limit(1)
+
+df_mas_vuelos = df_mas_vuelos.select(f.col("*"),f.lit(1).alias("key"))
+df_menos_vuelos = df_menos_vuelos.select(f.col("*"),f.lit(1).alias("key"))
+
+df_m_m = df_mas_vuelos.join(df_menos_vuelos, "key", 'inner')
+df_m_m = df_m_m.select("dia[0]","count[0]")
