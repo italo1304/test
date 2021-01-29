@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as f
+import pyspark.sql.window as w
 
 spark = SparkSession \
     .builder \
@@ -59,7 +60,7 @@ df_vuelos_retraso = df_vuelos.join(df_retrasos, df_vuelos["vuelo"] == df_retraso
 df_vuelos_retraso = df_vuelos_retraso.select("vuelo", "origen", "destino","dias_retraso")
 
 df_vuelos_retraso = df_vuelos_retraso.join(df_pais, df_pais["cod_pais"] == df_vuelos_retraso["origen"], 'inner')
-df_vuelos_retraso = df_vuelos_retraso.select("vuelo", f.col("pais").alias(origen), "destino","dias_retraso")
+df_vuelos_retraso = df_vuelos_retraso.select("vuelo", f.col("pais").alias("origen"), "destino","dias_retraso")
 
 df_vuelos_retraso = df_vuelos_retraso.join(df_pais, df_pais["cod_pais"] == df_vuelos_retraso["destino"], 'inner')
 df_vuelos_retraso = df_vuelos_retraso.select("vuelo", "origen", f.col("pais").alias("destino"),"dias_retraso")
@@ -68,3 +69,17 @@ print("Retraso Vuelos")
 print(df_vuelos_retraso.show())
 
 #df_top_dia_retrasos.write.mode("overwrite").saveAsTable("top_dia_retrasos")
+
+"""
+df_vuelos_retraso.select("vuelo", "origen", "dias_retraso", 
+    F.rowNumber().over(Window.partitionBy("driver").orderBy("unit_count")).alias("rowNum")).show()
+df2 = df_vuelos_retraso.select("vuelo", "origen", "dias_retraso", 
+    f.row_number().over(
+        Window.partitionBy("origen").orderBy(col("dias_retraso"))
+    ).alias("row_num")
+)
+
+df = sqlContext.createDataFrame(tup, ["id", "category"])
+window = w.Window.partitionBy(f.col("origen")).orderBy(f.col("dias_retraso"))
+df2 = df_vuelos_retraso.withColumn("sum", f.sum("dias_retraso").over(window))
+"""
