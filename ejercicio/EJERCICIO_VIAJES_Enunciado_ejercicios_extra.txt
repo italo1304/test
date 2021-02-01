@@ -1,0 +1,101 @@
+###############################################################################################
+###############################################################################################
+###############################################################################################
+###############################################################################################
+########             _____ _____             _______ _____  _____ ____  _    _         ########
+########       /\   |_   _|  __ \           |__   __|  __ \|_   _|  _ \| |  | |        ########
+########      /  \    | | | |__) |  ______     | |  | |__) | | | | |_) | |  | |        ########
+########     / /\ \   | | |  _  /  |______|    | |  |  _  /  | | |  _ <| |  | |        ########
+########    / ____ \ _| |_| | \ \              | |  | | \ \ _| |_| |_) | |__| |        ########
+########   /_/    \_\_____|_|  \_\             |_|  |_|  \_\_____|____/ \____/         ########
+########                                                                               ########
+########                                                                               ########
+########         ____                                                                  ########
+########            \\  `.                                                             ########
+########             \\   `.                                                           ########
+########              \ \   `.                                                         ########
+########               \\     `.                                                       ########
+########               :. . . . `._______________________.-~|~~-._                     ########
+########               \                                 ---'-----`-._                 ########
+########                /"""""""/             _...---------..         ~-._________     ########
+########               //     .`_________  .-`           \ .-~           /             ########
+########              //    .'       ||__.~             .-~_____________/              ########
+########             //___.`           .~            .-~                               ########
+########                             .~           .-~                                  ########
+########                           .~         _.-~                                     ########
+########                           `-_____.-~'                                         ########
+########                                                                               ########
+###############################################################################################
+###############################################################################################
+###############################################################################################
+###############################################################################################
+###############################################################################################
+
+Se han recolectado los datos de la Compañía aérea air-tribu, en concreto los vuelos realizados por esta compañía en 25 países durante el mes de Febrero de 2019. Se dispone de 4 archivos:
+
+                países: relaciona código de país con el País correspondiente 
+                vuelos: recopila información sobre el número de vuelo, origen y destino
+                retrasos: información sobre el retraso que ha tenido el vuelo (valores entre 10 y 99 minutos)
+                fecha: día de Febrero que tuvo lugar el vuelo
+                
+El archivo airTribu.xlsx , es un excel con el resumen de todos los archivos.
+
+1. Subir los archivos a HDFS, se creará una ruta para este ejercicio, y en esta ruta habrá una carpeta para cada archivo. Todos los archivos deben ser subidos ejecutando un único fichero.sh
+2. Analizar los archivos y crear 4 tablas en Hive, con la información de dichos archivos.
+3. Crear una nueva tabla en Hive, que contenga la siguiente información: Vuelo, Origen, Destino, Retraso.
+4. Hive. Se generarán las tablas necesarias para responder a las siguientes preguntas 
+                               a) ¿De qué país salieron más aviones?
+                               b) ¿A qué país llegaron más aviones?
+                               
+  Spark usando DF o RDD:                           
+                               c) ¿qué día hubo más vuelos? ¿y menos?
+                               d) ¿qué día hubo más retrasos? ¿y menos?
+                               
+                * Ejecutar las sentencias en Spark, y guardar la info en unas nuevas tablas Hive.
+
+                
+5. Agregar un resumen con toda la información de valor que consideréis. 
+- proponer que se podría hacer con estos datos
+                
+6. Presentación:
+- ejecutiva resumiendo todo
+- técnica mostrando codigos
+
+* Notas: Los nombres de las tablas serán decididos por el alumno, si se cree conveniente se podrán particionar algunas de ellas, no siendo obligatorio pero si valorado positivamente. 
+Habrá partes que os resulten “difíciles”, por cosas que no hemos hecho todavía, GOOGLE ES VUESTRO AMIGO.
+Atreveros con cosas, sed originales, hay mil maneras de resolver algo
+********************************************************************************************
+Ejercicios extra:
+7-crear un tabla resultado que tenga la información del origen de los vuelos y su retraso acumulado por día (sin importar el destino)
+Ejemplo, si partimos de los siguientes datos:
+---------------------------------------
+origen		destino		día		retraso
+---------------------------------------
+AAA			XXX			1		5
+BBB			YYY			3		10
+AAA			BBB			2		20
+BBB			QQQ			20		15
+
+el resultado sería:
+---------------------------------------
+origen		día		retraso		retraso_acumulado
+-------------------------------------------------
+AAA			1		5			5
+AAA			2		20			25
+BBB			3		10			10
+BBB			20		20			30
+
+Pista: yo usé window function para resolverlo.
+
+8-convertir las operaciones realizadas para resolver el ejercicio 7 en un método definido por el alumno, que devuelva dicho resultado.
+9-sobre el resultado del ejercicio 4, añade otra columna que sea "Pais_VIP" 
+    donde se identifique si un pais es VIP (los paises VIP son España, Perú y México 
+    tanto en origen como destino), para ello haz uso de UDF
+10-si se desea almacenar la información del resultado del ejercicio 4 en solo 1 archivo, ¿como lo harías? ¿y si lo quisiera en 10?
+11-explica si usarías en algún momento la función cache. Diferencias entre cache y persist.
+12-sobre el resultado del ejercicio 9, salva en una tabla hive solo cuando el origen sea Perú.
+Despues de eso vuelve a salvar sobre la misma tabla el resutado de filtrar cuando el origen es México.
+Por lo tanto en la tabla Hive resultado de este ejercicio deben aparecer los registros de paises Perú y Mexico.
+13-explica que es el shuffle y como afecta al procesamiento.
+14.¿Cómo identificar el shuffle en un dataframe y cómo corregirlo?
+

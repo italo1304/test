@@ -8,6 +8,9 @@ spark = SparkSession \
     .enableHiveSupport() \
     .getOrCreate()
 
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as f
+import pyspark.sql.window as w
 
 df_vuelos = spark.table("vuelos").na.drop()
 
@@ -22,8 +25,10 @@ df_salidas = df_salidas.select("pais", f.col("count").alias("top_salidas"))
 df_llegadas = df_llegadas.join(df_pais, df_pais["cod_pais"] == df_llegadas["destino"], 'inner')
 df_llegadas = df_llegadas.select("pais", f.col("count").alias("top_destino"))
 
+# 4a
 print("País top salida vuelos")
 print(df_salidas.show())
+# 4b
 print("País top llegada vuelos")
 print(df_llegadas.show())
 
@@ -32,8 +37,10 @@ df_fecha = (df_vuelo_fecha.groupBy('dia').count())
 df_mas_vuelos = df_fecha.sort(f.col("count").desc()).limit(1)
 df_menos_vuelos = df_fecha.sort(f.col("count")).limit(1)
 
+# 4c
 print("Día con más vuelos")
 print(df_mas_vuelos.show())
+# 4d
 print("Día con menos vuelos")
 print(df_menos_vuelos.show())
 
@@ -69,17 +76,24 @@ print("Retraso Vuelos")
 print(df_vuelos_retraso.show())
 
 #df_top_dia_retrasos.write.mode("overwrite").saveAsTable("top_dia_retrasos")
+df_retraso_acumulado = df_join.join(df_vuelos, "vuelo", 'inner')
+df_retraso_acumulado = df_retraso_acumulado.groupBy('origen', 'dia').sum('dias_retraso')
+df_retraso_acumulado = df_retraso_acumulado.select("origen","dia",f.col("sum(dias_retraso)").alias("retraso"))
+window = w.Window.partitionBy(f.col("origen")).orderBy(f.col("retraso"))
+df_retraso_acumulado = df_retraso_acumulado.withColumn("retraso_acumulado", f.sum("retraso").over(window))
 
+df2 = df_retraso_acumulado.repartition(4)
+
+##testing
 """
-df_vuelos_retraso.select("vuelo", "origen", "dias_retraso", 
-    F.rowNumber().over(Window.partitionBy("driver").orderBy("unit_count")).alias("rowNum")).show()
-df2 = df_vuelos_retraso.select("vuelo", "origen", "dias_retraso", 
-    f.row_number().over(
-        Window.partitionBy("origen").orderBy(col("dias_retraso"))
-    ).alias("row_num")
-)
+pais_vip = ["Peru", "España", "Mexico"]
+udf_pais_vip = f.udf(lambda x : "VIP" if x in pais_vip else "NO VIP")
 
-df = sqlContext.createDataFrame(tup, ["id", "category"])
-window = w.Window.partitionBy(f.col("origen")).orderBy(f.col("dias_retraso"))
-df2 = df_vuelos_retraso.withColumn("sum", f.sum("dias_retraso").over(window))
+df = df_salidas.select(f.col("pais"),f.col("top_salidas"), udf_pais_vip(f.col("pais")).alias("vip"))
+
+columns = ["Seqno","Name"]
+data = [("1", "john jones"),
+    ("2", "tracey smith"),
+    ("3", "amy sanders")]
+df = spark.createDataFrame(data=data,schema=columns)
 """
